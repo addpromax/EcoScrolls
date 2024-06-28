@@ -50,6 +50,7 @@ var FastItemStack.scrolls: Set<ScrollLevel>
     set(value) {
         this.persistentDataContainer.scrolls = value
     }
+
 var PersistentDataContainer.scrolls: Set<ScrollLevel>
     get() {
         if (!this.has(SCROLLS_KEY, PersistentDataType.TAG_CONTAINER_ARRAY)) {
@@ -75,18 +76,18 @@ var PersistentDataContainer.scrolls: Set<ScrollLevel>
             return
         }
 
-        val tag = mutableListOf<PersistentDataContainer>()
+        val tags = mutableListOf<PersistentDataContainer>()
 
-        for (scroll in scrolls) {
+        for (scroll in value) {
             val scrollTag = newPersistentDataContainer()
 
             scrollTag.set(SCROLL_ID_KEY, PersistentDataType.STRING, scroll.scroll.id)
             scrollTag.set(SCROLL_LEVEL_KEY, PersistentDataType.INTEGER, scroll.level)
 
-            tag += scrollTag
+            tags += scrollTag
         }
 
-        this.set(SCROLLS_KEY, PersistentDataType.TAG_CONTAINER_ARRAY, tag.toTypedArray())
+        this.set(SCROLLS_KEY, PersistentDataType.TAG_CONTAINER_ARRAY, tags.toTypedArray())
     }
 
 fun ItemStack.getScrollLevel(scroll: Scroll): ScrollLevel? {

@@ -10,6 +10,8 @@ discover-recipes: true
 gui:
   rows: 6
 
+  title: "Inscription Table"
+
   mask:
     # The way the mask works is by having a list of materials
     # And then a pattern to use those materials.
@@ -25,41 +27,41 @@ gui:
       - black_stained_glass_pane
       - magenta_stained_glass_pane
     pattern:
-      - "011111110"
-      - "012202210"
-      - "012111210"
-      - "010111010"
-      - "011111110"
-      - "011101110"
+      - "111111111"
+      - "100010001"
+      - "111000111"
+      - "211101112"
+      - "221111122"
+      - "222101222"
 
-  show-allowed:
-    allow-material: lime_stained_glass_pane
-    deny-material: red_stained_glass_pane
+  indicator:
+    allow-item: lime_stained_glass_pane
+    deny-item: red_stained_glass_pane
 
     # 1 is a show-allowed slot,
     # 0 is not.
     pattern:
-      - "100000001"
-      - "100000001"
-      - "100000001"
-      - "100000001"
-      - "100000001"
-      - "100000001"
+      - "000000000"
+      - "001101100"
+      - "000111000"
+      - "000000000"
+      - "000000000"
+      - "000000000"
 
   inscribe-slot:
-    row: 2
+    row: 4
     column: 5
 
   scroll-slot:
-    row: 4
-    column: 7
+    row: 2
+    column: 8
 
   item-slot:
-    row: 4
-    column: 3
+    row: 2
+    column: 2
 
   close:
-    material: barrier
+    item: barrier
     name: "&cClose"
     lore: []
     location:
@@ -67,7 +69,7 @@ gui:
       column: 5
 
   allow:
-    material: feather unbreaking:1 hide_enchants
+    item: feather unbreaking:1 hide_enchants
     name: "&aInscribe Item"
     lore:
       - "&7Inscribe %scroll% &7onto"
@@ -80,13 +82,13 @@ gui:
       - "&eClick to inscribe!"
 
   deny:
-    material: barrier
+    item: barrier
     name: "&cCannot Inscribe"
     lore:
       - "&7You cannot inscribe this item with this!"
 
   empty:
-    material: feather unbreaking:1 hide_enchants
+    item: feather unbreaking:1 hide_enchants
     name: "&aInscribe Item"
     lore:
       - "&7Place an item on the left and"
@@ -104,3 +106,6 @@ gui:
 
   # Effects to run when trying to inscribe an item without meeting the conditions
   deny-effects: [ ]
+
+  # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
+  custom-slots: [ ]

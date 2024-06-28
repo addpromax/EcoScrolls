@@ -3,6 +3,8 @@ package com.willfp.ecoscrolls.commands
 import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.command.impl.Subcommand
 import com.willfp.eco.core.drops.DropQueue
+import com.willfp.eco.core.items.Items.toSNBT
+import com.willfp.eco.core.items.toSNBT
 import com.willfp.ecoscrolls.scrolls.Scrolls
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
@@ -50,7 +52,7 @@ class CommandGive(
         val scroll = Scrolls[args[1]]
 
         if (scroll == null) {
-            sender.sendMessage(plugin.langYml.getMessage("invalid-stone"))
+            sender.sendMessage(plugin.langYml.getMessage("invalid-scroll"))
             return
         }
 

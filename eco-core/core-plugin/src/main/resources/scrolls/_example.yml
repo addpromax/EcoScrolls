@@ -23,7 +23,6 @@ item:
 # Options for inscribing items with the scroll
 inscription:
   # The conditions required to inscribe the item
-  # not-met-lines will show on the inscription table if the conditions are not met
   # not-met-effects will run if someone tries to inscribe the item without meeting the conditions
   conditions: [ ]
 
@@ -41,18 +40,28 @@ inscription:
 targets:
   - sword
 
+# The conflicts that the scroll has with other scrolls
+conflicts: [ ]
+
+# The lore added to items when inscribed with the scroll
+lore:
+  - ""
+  - "&7This item has been inscribed with"
+  - "&6Example Scroll"
+
+# Item placeholders, can be used in other plugins.
+# The placeholder is %ecoscrolls_scroll_<scroll>_<placeholder>%
+placeholders:
+  bonus: "%level% * 2"
+
 # Read https://plugins.auxilor.io/effects/configuring-an-effect
 # The effects for the scroll
 effects:
-  - id: give_money
+  - id: send_message
     args:
-      amount: "0.25 * %victim_level%"
+      message: "&6You have used the Example Scroll!"
     triggers:
-      - kill
-    filters:
-      not_entities:
-        - player
-
+      - alt_click
 
 # Read https://plugins.auxilor.io/effects/configuring-a-condition
 # The conditions for the scroll to work

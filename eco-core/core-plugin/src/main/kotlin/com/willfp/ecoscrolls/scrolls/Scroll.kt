@@ -1,10 +1,23 @@
 package com.willfp.ecoscrolls.scrolls
 
 import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.core.display.Display
+import com.willfp.eco.core.fast.FastItemStack
+import com.willfp.eco.core.fast.fast
+import com.willfp.eco.core.integrations.placeholder.PlaceholderManager
 import com.willfp.eco.core.items.Items
+import com.willfp.eco.core.placeholder.InjectablePlaceholder
+import com.willfp.eco.core.placeholder.PlaceholderInjectable
+import com.willfp.eco.core.placeholder.context.PlaceholderContext
+import com.willfp.eco.core.placeholder.context.placeholderContext
+import com.willfp.eco.core.placeholder.templates.DynamicInjectablePlaceholder
+import com.willfp.eco.core.placeholder.templates.DynamicPlaceholder
 import com.willfp.eco.core.price.ConfiguredPrice
 import com.willfp.eco.core.recipe.Recipes
 import com.willfp.eco.core.registry.KRegistrable
+import com.willfp.eco.util.evaluateExpression
+import com.willfp.eco.util.evaluateExpressionOrNull
+import com.willfp.eco.util.formatEco
 import com.willfp.ecoscrolls.EcoScrollsPlugin
 import com.willfp.ecoscrolls.plugin
 import com.willfp.ecoscrolls.target.Targets
@@ -16,6 +29,8 @@ import com.willfp.libreforge.triggers.TriggerData
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.util.Objects
+import java.util.regex.Pattern
+import kotlin.math.exp
 
 class Scroll(
     plugin: EcoScrollsPlugin,
@@ -40,8 +55,16 @@ class Scroll(
 
     val maxLevel = config.getInt("max-level")
 
-    private val _item = Items.lookup(config.getString("item.item")).item.apply {
-        this.scroll = this@Scroll
+    private val itemName = config.getString("item.name")
+    private val itemLore = config.getStrings("item.lore")
+
+    private val _item = run {
+        val base = Items.lookup(config.getString("item.item")).item
+        val fis = base.fast()
+        fis.scroll = this
+        fis.displayName = itemName.formatEco()
+        fis.lore = itemLore.formatEco().map { Display.PREFIX + it } + fis.lore
+        fis.unwrap()
     }
 
     val item: ItemStack
@@ -57,6 +80,8 @@ class Scroll(
     val targets = config.getStrings("targets")
         .mapNotNull { Targets[it] }
 
+    private val conflicts = config.getStrings("conflicts")
+
     val inscriptionConditions = Conditions.compile(
         config.getSubsections("inscription.conditions"),
         context.with("inscription conditions")
@@ -71,6 +96,30 @@ class Scroll(
         config.getSubsection("inscription.price"),
     )
 
+    private val lore = config.getStrings("lore")
+
+    private val levelPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("level")) {
+        override fun getValue(p0: String, p1: PlaceholderContext): String? {
+            return p1.itemStack?.getScrollLevel(this@Scroll)?.level?.toString()
+        }
+    }
+
+    private val levelInjectable = object : PlaceholderInjectable {
+        override fun getPlaceholderInjections(): List<InjectablePlaceholder> {
+            return listOf(
+                levelPlaceholder
+            )
+        }
+
+        override fun addInjectablePlaceholder(p0: MutableIterable<InjectablePlaceholder>) {
+            //
+        }
+
+        override fun clearInjectedPlaceholders() {
+            //
+        }
+    }
+
     fun getLevel(level: Int): ScrollLevel {
         return levels.getOrPut(level) {
             createLevel(level)
@@ -82,7 +131,11 @@ class Scroll(
     }
 
     fun canInscribe(itemStack: ItemStack): Boolean {
-        if (!targets.none { it.matches(itemStack) }) {
+        if (targets.none { it.matches(itemStack) }) {
+            return false
+        }
+
+        if (itemStack.scrolls.any { it.scroll.conflictsWith(this) }) {
             return false
         }
 
@@ -121,7 +174,8 @@ class Scroll(
 
         inscriptionEffects.trigger(
             TriggerData(
-                player = player
+                player = player,
+                item = itemStack
             ).dispatch(player.toDispatcher())
         )
 
@@ -134,6 +188,36 @@ class Scroll(
 
         val level = this.getLevel(next)
         itemStack.scrolls = itemStack.scrolls.filter { it.scroll != this }.toSet() + level
+    }
+
+    fun getLore(itemStack: ItemStack, player: Player?): List<String> {
+        return lore.formatEco(
+            placeholderContext(
+                player = player,
+                item = itemStack,
+                injectable = levelInjectable
+            )
+        ).map { Display.PREFIX + it }
+    }
+
+    fun displayScroll(fis: FastItemStack, player: Player?) {
+        fis.displayName = itemName.formatEco(player = player)
+        fis.lore = itemLore.formatEco(placeholderContext(player = player))
+            .map { Display.PREFIX + it } + fis.lore
+    }
+
+    fun getPlaceholder(identifier: String, context: PlaceholderContext): String? {
+        if ((levelPlaceholder.getValue(levelPlaceholder.pattern.pattern(), context)?.toIntOrNull() ?: 0) < 1) {
+            return null
+        }
+
+        val expression = config.getString("placeholders.$identifier")
+        return expression.formatEco(context.withInjectableContext(levelInjectable))
+    }
+
+    fun conflictsWith(other: Scroll): Boolean {
+        return this.conflicts.contains(other.id) ||
+                other.conflicts.contains(this.id)
     }
 
     override fun equals(other: Any?): Boolean {

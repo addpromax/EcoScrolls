@@ -23,7 +23,7 @@ class ScrollLevel(
     }
 
     override fun toString(): String {
-        return id.toString()
+        return "ScrollLevel(scroll=$scroll, level=$level)"
     }
 
     override fun hashCode(): Int {

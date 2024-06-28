@@ -1,6 +1,7 @@
 package com.willfp.ecoscrolls.gui
 
 import com.willfp.eco.core.drops.DropQueue
+import com.willfp.eco.core.fast.fast
 import com.willfp.eco.core.gui.GUIComponent
 import com.willfp.eco.core.gui.captiveSlot
 import com.willfp.eco.core.gui.menu
@@ -9,6 +10,7 @@ import com.willfp.eco.core.gui.menu.events.CaptiveItemChangeEvent
 import com.willfp.eco.core.gui.onEvent
 import com.willfp.eco.core.gui.onLeftClick
 import com.willfp.eco.core.gui.slot
+import com.willfp.eco.core.gui.slot.ConfigSlot
 import com.willfp.eco.core.gui.slot.CustomSlot
 import com.willfp.eco.core.gui.slot.FillerMask
 import com.willfp.eco.core.gui.slot.MaskItems
@@ -45,10 +47,13 @@ private val Menu.status by menuStateVar(InscriptionStatus.EMPTY)
 
 private val Menu.scroll by menuStateVar<Optional<Scroll>>()
 
-private val capturedItem = CaptiveItem()
-private val capturedScrollItem = CaptiveItem()
+private lateinit var capturedItem: CaptiveItem
+private lateinit var capturedScrollItem: CaptiveItem
 
 internal fun updateInscribeMenu(plugin: EcoScrollsPlugin) {
+    capturedItem = CaptiveItem()
+    capturedScrollItem = CaptiveItem()
+
     val violationContext = ViolationContext(plugin, "Inscription Table")
 
     val openEffects = Effects.compile(
@@ -62,6 +67,20 @@ internal fun updateInscribeMenu(plugin: EcoScrollsPlugin) {
     )
 
     inscriptionTable = menu(plugin.configYml.getInt("gui.rows")) {
+        allowChangingHeldItem()
+
+        title = plugin.configYml.getFormattedString("gui.title")
+
+        val indicatorPattern = plugin.configYml.getStrings("gui.indicator.pattern")
+        for (i in 1..indicatorPattern.size) {
+            val row = indicatorPattern[i - 1]
+            for (j in 1..9) {
+                if (row[j - 1] != '0') {
+                    setSlot(i, j, IndicatorSlot(plugin))
+                }
+            }
+        }
+
         setMask(
             FillerMask(
                 MaskItems.fromItemNames(
@@ -98,6 +117,7 @@ internal fun updateInscribeMenu(plugin: EcoScrollsPlugin) {
         )
 
         onEvent<CaptiveItemChangeEvent> { player, menu, _ ->
+            menu.scroll[player] = Optional.empty()
             val item = capturedItem[player]
             val scrollItem = capturedScrollItem[player]
 
@@ -107,12 +127,11 @@ internal fun updateInscribeMenu(plugin: EcoScrollsPlugin) {
                 val scroll = scrollItem.scroll
                 if (scroll == null) {
                     menu.status[player] = InscriptionStatus.DENY
+                } else if (scroll.canInscribe(item)) {
+                    menu.scroll[player] = Optional.of(scroll)
+                    menu.status[player] = InscriptionStatus.ALLOW
                 } else {
-                    menu.status[player] = if (scroll.canInscribe(item)) {
-                        InscriptionStatus.ALLOW
-                    } else {
-                        InscriptionStatus.DENY
-                    }
+                    menu.status[player] = InscriptionStatus.DENY
                 }
             }
         }
@@ -132,13 +151,41 @@ internal fun updateInscribeMenu(plugin: EcoScrollsPlugin) {
                 .forceTelekinesis()
                 .push()
         }
+
+        for (config in plugin.configYml.getSubsections("gui.custom-slots")) {
+            setSlot(
+                config.getInt("row"),
+                config.getInt("column"),
+                ConfigSlot(config)
+            )
+        }
+    }
+}
+
+private class IndicatorSlot(plugin: EcoScrollsPlugin) : CustomSlot() {
+    private val allowed = Items.lookup(plugin.configYml.getString("gui.indicator.allow-item")).item
+    private val denied = Items.lookup(plugin.configYml.getString("gui.indicator.deny-item")).item
+
+    init {
+        create()
+    }
+
+    private fun create() {
+        init(slot { player, menu ->
+            val status = menu.status[player]
+
+            when (status) {
+                InscriptionStatus.ALLOW -> allowed
+                else -> denied
+            }
+        })
     }
 }
 
 private class CloseSlot(private val plugin: EcoScrollsPlugin) : CustomSlot() {
     private val item = Items.lookup(plugin.configYml.getString("gui.close.item")).modify {
-        setDisplayName(plugin.langYml.getFormattedString("gui.close.name"))
-        addLoreLines(plugin.langYml.getFormattedStrings("gui.close.lore"))
+        setDisplayName(plugin.configYml.getFormattedString("gui.close.name"))
+        addLoreLines(plugin.configYml.getFormattedStrings("gui.close.lore"))
     }
 
     init {
@@ -201,16 +248,16 @@ private abstract class MenuSlot(
     }
 
     private fun getItem(player: Player, menu: Menu): ItemStack {
-        val name = plugin.langYml.getString("gui.${status.name.lowercase()}.name")
+        val name = plugin.configYml.getString("gui.${status.name.lowercase()}.name")
             .injectPlaceholders(player, menu)
 
-        val lore = plugin.langYml.getStrings("gui.${status.name.lowercase()}.lore")
+        val lore = plugin.configYml.getStrings("gui.${status.name.lowercase()}.lore")
             .map { it.injectPlaceholders(player, menu) }
 
-        return item.modify {
-            setDisplayName(name)
-            addLoreLines(lore)
-        }
+        return item.fast().apply {
+            this.displayName = name
+            this.lore = lore
+        }.unwrap()
     }
 
     private fun String.injectPlaceholders(player: Player, menu: Menu): String {
@@ -250,10 +297,18 @@ private class AllowSlot(plugin: EcoScrollsPlugin, violationContext: ViolationCon
         val inscribed = scroll.inscribe(item, player)
 
         if (inscribed) {
+            val scrollItem = capturedScrollItem[player]
+                ?: throw IllegalStateException("Scroll item is null")
+
+            scrollItem.amount -= 1
+
             applyEffects.trigger(TriggerData(player = player).dispatch(player.toDispatcher()))
         } else {
             denyEffects.trigger(TriggerData(player = player).dispatch(player.toDispatcher()))
         }
+
+        // Cheat to update the menu
+        menu.callEvent(player, CaptiveItemChangeEvent(0, 0, null, null))
     }
 }
 
