@@ -1,0 +1,106 @@
+#
+# EcoScrolls
+# by Auxilor
+#
+
+# If all crafting recipes should be discovered by default
+discover-recipes: true
+
+# Options for the inscription table
+gui:
+  rows: 6
+
+  mask:
+    # The way the mask works is by having a list of materials
+    # And then a pattern to use those materials.
+
+    # The pattern is the rows in the GUI
+    # Each line must be 9 long, and the amount of rows should be the amount of rows in the GUI
+    # A zero represents nothing
+    # A 1 represents the first material
+    # A 2 represents the second material
+    # And so on, you can add up to 9.
+
+    items:
+      - black_stained_glass_pane
+      - magenta_stained_glass_pane
+    pattern:
+      - "011111110"
+      - "012202210"
+      - "012111210"
+      - "010111010"
+      - "011111110"
+      - "011101110"
+
+  show-allowed:
+    allow-material: lime_stained_glass_pane
+    deny-material: red_stained_glass_pane
+
+    # 1 is a show-allowed slot,
+    # 0 is not.
+    pattern:
+      - "100000001"
+      - "100000001"
+      - "100000001"
+      - "100000001"
+      - "100000001"
+      - "100000001"
+
+  inscribe-slot:
+    row: 2
+    column: 5
+
+  scroll-slot:
+    row: 4
+    column: 7
+
+  item-slot:
+    row: 4
+    column: 3
+
+  close:
+    material: barrier
+    name: "&cClose"
+    lore: []
+    location:
+      row: 6
+      column: 5
+
+  allow:
+    material: feather unbreaking:1 hide_enchants
+    name: "&aInscribe Item"
+    lore:
+      - "&7Inscribe %scroll% &7onto"
+      - "&7the item on the left, granting it"
+      - "&7a new ability or effect."
+      - ""
+      - "&7Price:"
+      - "%price%"
+      - ""
+      - "&eClick to inscribe!"
+
+  deny:
+    material: barrier
+    name: "&cCannot Inscribe"
+    lore:
+      - "&7You cannot inscribe this item with this!"
+
+  empty:
+    material: feather unbreaking:1 hide_enchants
+    name: "&aInscribe Item"
+    lore:
+      - "&7Place an item on the left and"
+      - "&7a scroll on the right to inscribe it."
+
+
+  # Effects to run when the GUI is opened
+  open-effects: [ ]
+
+  # Effects to run when the GUI is closed
+  close-effects: [ ]
+
+  # Effects to run when an item is inscribed
+  apply-effects: [ ]
+
+  # Effects to run when trying to inscribe an item without meeting the conditions
+  deny-effects: [ ]

@@ -1,0 +1,8 @@
+messages:
+  prefix: "&#2d2d2d&lEcoScrolls&r &8» &r"
+  no-permission: "&cYou don't have permission to do this!"
+  not-player: "&cThis command must be run by a player"
+  invalid-command: "&cUnknown subcommand!"
+  reloaded: "Reloaded!"
+
+  all: "All"

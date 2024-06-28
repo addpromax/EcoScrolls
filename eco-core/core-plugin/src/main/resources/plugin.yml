@@ -1,0 +1,46 @@
+name: ${pluginName}
+version: ${version}
+main: com.willfp.ecoscrolls.EcoScrollsPlugin
+api-version: 1.17
+authors: [ Auxilor ]
+website: willfp.com
+depend:
+  - eco
+softdepend:
+  - libreforge
+commands:
+  ecoscrolls:
+    description: Base Command
+    permission: ecoscrolls.command.ecoscrolls
+    aliases:
+      - scrolls
+  inscribe:
+    description: Opens the Inscription Table
+    permission: ecoscrolls.command.inscribe
+
+permissions:
+  ecoscrolls.*:
+    description: All ecoscrolls permissions
+    default: op
+    children:
+      ecoscrolls.command.*: true
+  ecoscrolls.command.*:
+    description: All commands
+    default: op
+    children:
+      ecoscrolls.command.ecoscrolls: true
+      ecoscrolls.command.reload: true
+      ecoscrolls.command.inscribe: true
+      ecoscrolls.command.give: true
+
+  ecoscrolls.command.reload:
+    description: Allows reloading the config
+    default: op
+
+  ecoscrolls.command.give:
+    description: Allows giving scrolls
+    default: op
+
+  ecoscrolls.command.inscribe:
+    description: Allows opening the inscription table with /inscribe
+    default: true

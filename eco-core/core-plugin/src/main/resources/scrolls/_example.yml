@@ -1,0 +1,59 @@
+# The ID of the scroll is the name of the .yml file,
+# for example coins_on_kill.yml has the ID of coins_on_kill
+# You can place scrolls anywhere in this folder,
+# including in subfolders if you want to organize your scroll configs
+# _example.yml is not loaded.
+
+# The name of the scroll
+name: "&6Example Scroll"
+
+# The max level of the scroll
+max-level: 1
+
+# Options for the physical scroll item
+item:
+  item: paper glint
+  name: "&6&lExample Scroll"
+  lore:
+      - "&7This is an example scroll."
+      - "&7It does nothing."
+  craftable: false
+  recipe: [ ]
+
+# Options for inscribing items with the scroll
+inscription:
+  # The conditions required to inscribe the item
+  # not-met-lines will show on the inscription table if the conditions are not met
+  # not-met-effects will run if someone tries to inscribe the item without meeting the conditions
+  conditions: [ ]
+
+  # The effects that will be run when the item is inscribed
+  effects: [ ]
+
+  # Read https://plugins.auxilor.io/all-plugins/prices
+  # The price to inscribe the item
+  price:
+    value: 100
+    type: coins
+    display: "&e%value% coins"
+
+# The items that the scroll can be applied to, see targets.yml
+targets:
+  - sword
+
+# Read https://plugins.auxilor.io/effects/configuring-an-effect
+# The effects for the scroll
+effects:
+  - id: give_money
+    args:
+      amount: "0.25 * %victim_level%"
+    triggers:
+      - kill
+    filters:
+      not_entities:
+        - player
+
+
+# Read https://plugins.auxilor.io/effects/configuring-a-condition
+# The conditions for the scroll to work
+conditions: [ ]
