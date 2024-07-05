@@ -12,7 +12,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 
 class DragAndDropListener(private val plugin: EcoScrollsPlugin) : Listener {
     @EventHandler
-    fun onDrag(event: InventoryClickEvent) {
+    fun handle(event: InventoryClickEvent) {
         val player = event.whoClicked as? Player ?: return
 
         if (player.gameMode == GameMode.CREATIVE) {

@@ -17,6 +17,7 @@ import com.willfp.eco.core.gui.slot.MaskItems
 import com.willfp.eco.core.gui.slot.Slot
 import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.items.builder.modify
+import com.willfp.eco.core.recipe.parts.EmptyTestableItem
 import com.willfp.eco.util.formatEco
 import com.willfp.ecomponent.CaptiveItem
 import com.willfp.ecomponent.addComponent
@@ -261,12 +262,12 @@ private abstract class MenuSlot(
     }
 
     private fun String.injectPlaceholders(player: Player, menu: Menu): String {
-        val price = menu.scroll[player]?.getOrNull()?.inscriptionPrice?.getDisplay(player)
-        val scroll = menu.scroll[player]?.getOrNull()?.name
+        val scroll = menu.scroll[player]?.getOrNull()
+        val price = scroll?.getInscriptionPriceDisplay(player, capturedItem[player])
 
         return this
             .replaceNullable("%price%", price)
-            .replaceNullable("%scroll%", scroll)
+            .replaceNullable("%scroll%", scroll?.name)
             .formatEco(player = player, formatPlaceholders = true)
     }
 

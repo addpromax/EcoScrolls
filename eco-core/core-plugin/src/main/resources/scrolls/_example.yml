@@ -41,6 +41,10 @@ inscription:
     type: coins
     display: "&e%value% coins"
 
+  # The formula to multiply the price depending on the level.
+  # The %level% placeholder is the *current* level of the scroll
+  price-level-multiplier: "1 + %level% * 0.5"
+
   # If the scroll can be applied to items via drag-and-drop
   drag-and-drop: true
 

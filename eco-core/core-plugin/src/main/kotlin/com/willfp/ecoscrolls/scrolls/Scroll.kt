@@ -13,7 +13,10 @@ import com.willfp.eco.core.placeholder.templates.DynamicInjectablePlaceholder
 import com.willfp.eco.core.price.ConfiguredPrice
 import com.willfp.eco.core.recipe.Recipes
 import com.willfp.eco.core.registry.KRegistrable
+import com.willfp.eco.util.evaluateExpression
+import com.willfp.eco.util.evaluateExpressionOrNull
 import com.willfp.eco.util.formatEco
+import com.willfp.eco.util.toNumeral
 import com.willfp.ecoscrolls.EcoScrollsPlugin
 import com.willfp.ecoscrolls.plugin
 import com.willfp.ecoscrolls.target.Targets
@@ -88,21 +91,23 @@ class Scroll(
             )
         }
 
-    val removeRequirements = config.getBool("remove-requirements")
+    private val removeRequirements = config.getBool("remove-requirements")
 
-    val inscriptionConditions = Conditions.compile(
+    private val inscriptionConditions = Conditions.compile(
         config.getSubsections("inscription.conditions"),
         context.with("inscription conditions")
     )
 
-    val inscriptionEffects = Effects.compile(
+    private val inscriptionEffects = Effects.compile(
         config.getSubsections("inscription.effects"),
         context.with("inscription effects")
     )
 
-    val inscriptionPrice = ConfiguredPrice.createOrFree(
+    private val inscriptionPrice = ConfiguredPrice.createOrFree(
         config.getSubsection("inscription.price"),
     )
+
+    private val priceLevelMultiplier = config.getStringOrNull("inscription.price-level-multiplier")
 
     val isDragAndDropEnabled = config.getBool("inscription.drag-and-drop")
 
@@ -114,6 +119,12 @@ class Scroll(
         private val levelPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("level")) {
             override fun getValue(p0: String, p1: PlaceholderContext): String? {
                 return p1.itemStack?.getScrollLevel(this@Scroll)?.level?.toString()
+            }
+        }
+
+        private val levelNumeralPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("level_numeral")) {
+            override fun getValue(p0: String, p1: PlaceholderContext): String? {
+                return p1.itemStack?.getScrollLevel(this@Scroll)?.level?.toNumeral()
             }
         }
 
@@ -143,6 +154,7 @@ class Scroll(
         override fun getPlaceholderInjections(): List<InjectablePlaceholder> {
             return listOf(
                 levelPlaceholder,
+                levelNumeralPlaceholder,
                 usesLeftPlaceholder,
                 usesPlaceholder,
                 maxUsesPlaceholder
@@ -211,11 +223,11 @@ class Scroll(
             return false
         }
 
-        if (!inscriptionPrice.canAfford(player)) {
+        if (!inscriptionPrice.canAfford(player, getPriceMultiplier(itemStack))) {
             return false
         }
 
-        inscriptionPrice.pay(player)
+        inscriptionPrice.pay(player, getPriceMultiplier(itemStack))
 
         inscribe(itemStack)
 
@@ -278,6 +290,27 @@ class Scroll(
     fun conflictsWith(other: Scroll): Boolean {
         return this.conflicts.contains(other.id) ||
                 other.conflicts.contains(this.id)
+    }
+
+    fun getPriceMultiplier(itemStack: ItemStack?): Double {
+        if (itemStack == null || priceLevelMultiplier == null) {
+            return 1.0
+        }
+
+        val level = itemStack.getScrollLevel(this)?.level ?: 0
+
+        return evaluateExpressionOrNull(
+            // Less elegant than actually using placeholders, but it avoids a bunch
+            // of extra code.
+            priceLevelMultiplier.replace("%level%", level.toString()),
+            placeholderContext(
+                item = itemStack
+            )
+        ) ?: 1.0
+    }
+
+    fun getInscriptionPriceDisplay(player: Player, itemStack: ItemStack?): String {
+        return inscriptionPrice.getDisplay(player, getPriceMultiplier(itemStack))
     }
 
     override fun equals(other: Any?): Boolean {
