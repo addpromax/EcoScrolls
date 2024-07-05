@@ -11,7 +11,6 @@ import com.willfp.libreforge.toDispatcher
 import com.willfp.libreforge.triggers.TriggerData
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import sun.jvm.hotspot.oops.CellTypeState.value
 
 class InscriptionHandler(private val plugin: EcoScrollsPlugin) {
     private val context = ViolationContext(plugin, "Inscriptions")
