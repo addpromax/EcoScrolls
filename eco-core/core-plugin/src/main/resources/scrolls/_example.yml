@@ -36,6 +36,12 @@ inscription:
     type: coins
     display: "&e%value% coins"
 
+  # If the scroll can be applied to items via drag-and-drop
+  drag-and-drop: true
+
+  # If the scroll can be applied to items via the inscription table
+  inscription-table: true
+
 # The items that the scroll can be applied to, see targets.yml
 targets:
   - sword
@@ -55,7 +61,7 @@ placeholders:
   bonus: "%level% * 2"
 
 # Read https://plugins.auxilor.io/effects/configuring-an-effect
-# The effects for the scroll
+# The effects for the scroll to give
 effects:
   - id: send_message
     args:

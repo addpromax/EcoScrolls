@@ -93,7 +93,7 @@ internal fun updateInscribeMenu(plugin: EcoScrollsPlugin) {
         addComponent(
             plugin.configYml.getInt("gui.inscribe-slot.row"),
             plugin.configYml.getInt("gui.inscribe-slot.column"),
-            Inscriber(plugin, violationContext),
+            Inscriber(plugin),
         )
 
         addComponent(
@@ -125,7 +125,7 @@ internal fun updateInscribeMenu(plugin: EcoScrollsPlugin) {
                 menu.status[player] = InscriptionStatus.EMPTY
             } else {
                 val scroll = scrollItem.scroll
-                if (scroll == null) {
+                if (scroll == null || !scroll.isInscriptionTableEnabled) {
                     menu.status[player] = InscriptionStatus.DENY
                 } else if (scroll.canInscribe(item)) {
                     menu.scroll[player] = Optional.of(scroll)
@@ -203,10 +203,9 @@ private class CloseSlot(private val plugin: EcoScrollsPlugin) : CustomSlot() {
 
 
 private class Inscriber(
-    plugin: EcoScrollsPlugin,
-    violationContext: ViolationContext
+    plugin: EcoScrollsPlugin
 ) : GUIComponent {
-    private val allowSlot = AllowSlot(plugin, violationContext)
+    private val allowSlot = AllowSlot(plugin)
     private val denySlot = DenySlot(plugin)
     private val emptySlot = EmptySlot(plugin)
 
@@ -279,32 +278,18 @@ private abstract class MenuSlot(
     }
 }
 
-private class AllowSlot(plugin: EcoScrollsPlugin, violationContext: ViolationContext) : MenuSlot(plugin, InscriptionStatus.ALLOW) {
-    private val applyEffects = Effects.compile(
-        plugin.configYml.getSubsections("gui.apply-effects"),
-        violationContext.with("Apply Effects")
-    )
-
-    private val denyEffects = Effects.compile(
-        plugin.configYml.getSubsections("gui.deny-effects"),
-        violationContext.with("Deny Effects")
-    )
-
+private class AllowSlot(plugin: EcoScrollsPlugin) : MenuSlot(plugin, InscriptionStatus.ALLOW) {
     override fun onClick(player: Player, event: InventoryClickEvent, slot: Slot, menu: Menu) {
         val scroll = menu.scroll[player]?.getOrNull() ?: return
         val item = capturedItem[player] ?: return
 
-        val inscribed = scroll.inscribe(item, player)
+        val didInscribe = plugin.inscriptionHandler.tryInscribe(item, scroll, player)
 
-        if (inscribed) {
+        if (didInscribe) {
             val scrollItem = capturedScrollItem[player]
                 ?: throw IllegalStateException("Scroll item is null")
 
             scrollItem.amount -= 1
-
-            applyEffects.trigger(TriggerData(player = player).dispatch(player.toDispatcher()))
-        } else {
-            denyEffects.trigger(TriggerData(player = player).dispatch(player.toDispatcher()))
         }
 
         // Cheat to update the menu

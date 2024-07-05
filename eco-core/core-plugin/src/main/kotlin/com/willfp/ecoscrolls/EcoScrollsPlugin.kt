@@ -1,27 +1,38 @@
 package com.willfp.ecoscrolls
 
-import com.willfp.ecoscrolls.scrolls.Scrolls
-import com.willfp.ecoscrolls.commands.CommandEcoScrolls
 import com.willfp.eco.core.command.impl.PluginCommand
 import com.willfp.eco.core.display.DisplayModule
 import com.willfp.eco.core.integrations.placeholder.PlaceholderManager
 import com.willfp.eco.core.placeholder.context.PlaceholderContext
 import com.willfp.eco.core.placeholder.templates.DynamicPlaceholder
+import com.willfp.ecoscrolls.commands.CommandEcoScrolls
 import com.willfp.ecoscrolls.commands.CommandInscribe
 import com.willfp.ecoscrolls.config.TargetsYml
 import com.willfp.ecoscrolls.display.ScrollDisplay
 import com.willfp.ecoscrolls.gui.updateInscribeMenu
+import com.willfp.ecoscrolls.libreforge.ConditionHasScroll
+import com.willfp.ecoscrolls.libreforge.EffectInscribeItem
+import com.willfp.ecoscrolls.libreforge.FilterScroll
+import com.willfp.ecoscrolls.libreforge.TriggerInscribe
+import com.willfp.ecoscrolls.libreforge.TriggerTryInscribe
+import com.willfp.ecoscrolls.scrolls.InscriptionHandler
 import com.willfp.ecoscrolls.scrolls.ScrollLevel
+import com.willfp.ecoscrolls.scrolls.Scrolls
 import com.willfp.ecoscrolls.target.ScrollFinder
 import com.willfp.ecoscrolls.target.Targets
+import com.willfp.ecoscrolls.util.AntiPlaceListener
 import com.willfp.ecoscrolls.util.DiscoverRecipeListener
+import com.willfp.ecoscrolls.util.DragAndDropListener
 import com.willfp.libreforge.NamedValue
+import com.willfp.libreforge.conditions.Conditions
+import com.willfp.libreforge.effects.Effects
+import com.willfp.libreforge.filters.Filters
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
 import com.willfp.libreforge.registerHolderPlaceholderProvider
 import com.willfp.libreforge.registerHolderProvider
+import com.willfp.libreforge.triggers.Triggers
 import org.bukkit.event.Listener
-import org.checkerframework.checker.units.qual.m
 import java.util.regex.Pattern
 
 internal lateinit var plugin: EcoScrollsPlugin
@@ -30,11 +41,19 @@ internal lateinit var plugin: EcoScrollsPlugin
 class EcoScrollsPlugin : LibreforgePlugin() {
     val targetsYml = TargetsYml(this)
 
+    val inscriptionHandler = InscriptionHandler(this)
+
     init {
         plugin = this
     }
 
     override fun handleEnable() {
+        Conditions.register(ConditionHasScroll)
+        Effects.register(EffectInscribeItem)
+        Filters.register(FilterScroll)
+        Triggers.register(TriggerInscribe)
+        Triggers.register(TriggerTryInscribe)
+
         registerHolderProvider(ScrollFinder.toHolderProvider())
 
         registerHolderPlaceholderProvider<ScrollLevel> { it, _ ->
@@ -68,6 +87,7 @@ class EcoScrollsPlugin : LibreforgePlugin() {
     override fun handleReload() {
         updateInscribeMenu(this)
         Targets.update(this)
+        inscriptionHandler.reload()
     }
 
     override fun loadConfigCategories(): List<ConfigCategory> {
@@ -85,7 +105,9 @@ class EcoScrollsPlugin : LibreforgePlugin() {
 
     override fun loadListeners(): List<Listener> {
         return listOf(
-            DiscoverRecipeListener(this)
+            DiscoverRecipeListener(this),
+            DragAndDropListener(this),
+            AntiPlaceListener
         )
     }
 

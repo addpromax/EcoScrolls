@@ -101,11 +101,23 @@ gui:
   # Effects to run when the GUI is closed
   close-effects: [ ]
 
+  # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
+  custom-slots: [ ]
+
+# Options for inscribing items
+inscription:
   # Effects to run when an item is inscribed
+  # The text placeholder is the name of the scroll, read here:
+  # https://plugins.auxilor.io/effects/configuring-an-effect#placeholders
+  # You can also use %scroll% and %scroll_id% as placeholders.
   apply-effects: [ ]
 
   # Effects to run when trying to inscribe an item without meeting the conditions
+  # The text placeholder is the name of the scroll, read here:
+  # https://plugins.auxilor.io/effects/configuring-an-effect#placeholders
+  # You can also use %scroll% and %scroll_id% as placeholders.
   deny-effects: [ ]
 
-  # Custom GUI slots; see here for a how-to: https://plugins.auxilor.io/all-plugins/custom-gui-slots
-  custom-slots: [ ]
+  # The maximum amount of scrolls that can be applied to an item
+  # Set to -1 for unlimited
+  scroll-limit: -1

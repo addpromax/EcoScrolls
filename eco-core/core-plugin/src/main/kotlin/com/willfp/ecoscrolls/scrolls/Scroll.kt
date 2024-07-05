@@ -96,6 +96,10 @@ class Scroll(
         config.getSubsection("inscription.price"),
     )
 
+    val isDragAndDropEnabled = config.getBool("inscription.drag-and-drop")
+
+    val isInscriptionTableEnabled = config.getBool("inscription.inscription-table")
+
     private val lore = config.getStrings("lore")
 
     private val levelPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("level")) {
@@ -135,7 +139,13 @@ class Scroll(
             return false
         }
 
-        if (itemStack.scrolls.any { it.scroll.conflictsWith(this) }) {
+        val currentScrolls = itemStack.scrolls
+
+        if (currentScrolls.size >= plugin.inscriptionHandler.scrollLimit) {
+            return false
+        }
+
+        if (currentScrolls.any { it.scroll.conflictsWith(this) }) {
             return false
         }
 
@@ -155,7 +165,8 @@ class Scroll(
 
         if (!inscriptionConditions.areMetAndTrigger(
                 TriggerData(
-                    player = player
+                    player = player,
+                    item = itemStack
                 ).dispatch(player.toDispatcher())
             )
         ) {
