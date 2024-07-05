@@ -13,19 +13,15 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 class InscriptionHandler(private val plugin: EcoScrollsPlugin) {
-    private val context = ViolationContext(plugin, "Inscriptions")
-
     private lateinit var applyEffects: EffectList
     private lateinit var denyEffects: EffectList
 
     val scrollLimit = plugin.configYml.getInt("inscription.scroll-limit")
         .let { if (it <= 0) Int.MAX_VALUE else it }
 
-    init {
-        reload()
-    }
-
     internal fun reload() {
+        val context = ViolationContext(plugin, "Inscriptions")
+
         applyEffects = Effects.compile(
             plugin.configYml.getSubsections("inscription.apply-effects"),
             context.with("Apply Effects")
