@@ -9,6 +9,7 @@ import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
 
 private val SCROLL_KEY = plugin.createNamespacedKey("scroll")
+private val SCROLL_USES_KEY = plugin.createNamespacedKey("scroll_uses")
 private val SCROLLS_KEY = plugin.createNamespacedKey("scrolls")
 private val SCROLL_ID_KEY = plugin.createNamespacedKey("scroll")
 private val SCROLL_LEVEL_KEY = plugin.createNamespacedKey("level")
@@ -38,6 +39,41 @@ var PersistentDataContainer.scroll: Scroll?
 
         this.set(SCROLL_KEY, PersistentDataType.STRING, value.id)
     }
+
+var ItemStack.scrollUses: Int
+    get() = this.fast().scrollUses
+    set(value) {
+        this.fast().scrollUses = value
+    }
+
+var FastItemStack.scrollUses: Int
+    get() = this.persistentDataContainer.scrollUses
+    set(value) {
+        this.persistentDataContainer.scrollUses = value
+    }
+
+var PersistentDataContainer.scrollUses: Int
+    get() {
+        return this.get(SCROLL_USES_KEY, PersistentDataType.INTEGER) ?: 0
+    }
+    set(value) {
+        if (value == 0) {
+            this.remove(SCROLL_USES_KEY)
+            return
+        }
+
+        this.set(SCROLL_USES_KEY, PersistentDataType.INTEGER, value)
+    }
+
+fun ItemStack.useScroll() {
+    val scroll = this.scroll ?: return
+
+    this.scrollUses++
+
+    if (this.scrollUses >= scroll.maxUses) {
+        this.amount--
+    }
+}
 
 var ItemStack.scrolls: Set<ScrollLevel>
     get() = this.fast().scrolls

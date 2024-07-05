@@ -24,6 +24,7 @@ import com.willfp.ecomponent.menuStateVar
 import com.willfp.ecoscrolls.EcoScrollsPlugin
 import com.willfp.ecoscrolls.scrolls.Scroll
 import com.willfp.ecoscrolls.scrolls.scroll
+import com.willfp.ecoscrolls.scrolls.useScroll
 import com.willfp.libreforge.ViolationContext
 import com.willfp.libreforge.effects.Effects
 import com.willfp.libreforge.toDispatcher
@@ -289,7 +290,7 @@ private class AllowSlot(plugin: EcoScrollsPlugin) : MenuSlot(plugin, Inscription
             val scrollItem = capturedScrollItem[player]
                 ?: throw IllegalStateException("Scroll item is null")
 
-            scrollItem.amount -= 1
+            scrollItem.useScroll()
         }
 
         // Cheat to update the menu

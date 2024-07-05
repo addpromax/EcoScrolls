@@ -26,6 +26,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.util.Objects
 import java.util.regex.Pattern
+import kotlin.math.max
 
 class Scroll(
     plugin: EcoScrollsPlugin,
@@ -49,6 +50,8 @@ class Scroll(
     val name = config.getFormattedString("name")
 
     val maxLevel = config.getInt("max-level")
+
+    val maxUses = config.getInt("max-uses")
 
     private val itemName = config.getString("item.name")
     private val itemLore = config.getStrings("item.lore")
@@ -107,16 +110,42 @@ class Scroll(
 
     private val lore = config.getStrings("lore")
 
-    private val levelPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("level")) {
-        override fun getValue(p0: String, p1: PlaceholderContext): String? {
-            return p1.itemStack?.getScrollLevel(this@Scroll)?.level?.toString()
+    private val scrollPlaceholderContext = object : PlaceholderInjectable {
+        private val levelPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("level")) {
+            override fun getValue(p0: String, p1: PlaceholderContext): String? {
+                return p1.itemStack?.getScrollLevel(this@Scroll)?.level?.toString()
+            }
         }
-    }
 
-    private val levelInjectable = object : PlaceholderInjectable {
+        private val usesLeftPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("uses_left")) {
+            override fun getValue(p0: String, p1: PlaceholderContext): String? {
+                val item = p1.itemStack ?: return null
+                val scroll = item.scroll ?: return null
+                return (scroll.maxUses - item.scrollUses).toString()
+            }
+        }
+
+        private val usesPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("uses")) {
+            override fun getValue(p0: String, p1: PlaceholderContext): String? {
+                val item = p1.itemStack ?: return null
+                return item.scrollUses.toString()
+            }
+        }
+
+        private val maxUsesPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("max_uses")) {
+            override fun getValue(p0: String, p1: PlaceholderContext): String? {
+                val item = p1.itemStack ?: return null
+                val scroll = item.scroll ?: return null
+                return scroll.maxUses.toString()
+            }
+        }
+
         override fun getPlaceholderInjections(): List<InjectablePlaceholder> {
             return listOf(
-                levelPlaceholder
+                levelPlaceholder,
+                usesLeftPlaceholder,
+                usesPlaceholder,
+                maxUsesPlaceholder
             )
         }
 
@@ -223,24 +252,27 @@ class Scroll(
             placeholderContext(
                 player = player,
                 item = itemStack,
-                injectable = levelInjectable
+                injectable = scrollPlaceholderContext
             )
         ).map { Display.PREFIX + it }
     }
 
     fun displayScroll(fis: FastItemStack, player: Player?) {
-        fis.displayName = itemName.formatEco(player = player)
-        fis.lore = itemLore.formatEco(placeholderContext(player = player))
+        val context = placeholderContext(player = player, item = fis.unwrap())
+            .withInjectableContext(scrollPlaceholderContext)
+
+        fis.displayName = itemName.formatEco(context)
+        fis.lore = itemLore.formatEco(context)
             .map { Display.PREFIX + it } + fis.lore
     }
 
     fun getPlaceholder(identifier: String, context: PlaceholderContext): String? {
-        if ((levelPlaceholder.getValue(levelPlaceholder.pattern.pattern(), context)?.toIntOrNull() ?: 0) < 1) {
+        if ((context.itemStack?.getScrollLevel(this)?.level ?: 0) < 1) {
             return null
         }
 
         val expression = config.getString("placeholders.$identifier")
-        return expression.formatEco(context.withInjectableContext(levelInjectable))
+        return expression.formatEco(context.withInjectableContext(scrollPlaceholderContext))
     }
 
     fun conflictsWith(other: Scroll): Boolean {

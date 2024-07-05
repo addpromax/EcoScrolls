@@ -10,9 +10,14 @@ name: "&6Example Scroll"
 # The max level of the scroll
 max-level: 1
 
+# The amount of times the scroll can be used
+max-uses: 1
+
 # Options for the physical scroll item
 item:
   item: paper glint
+
+  # Name and lore can use %uses%, %max_uses%, and %uses_left% placeholders
   name: "&6&lExample Scroll"
   lore:
       - "&7This is an example scroll."
