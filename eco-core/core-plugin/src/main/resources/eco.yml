@@ -3,6 +3,6 @@ environment:
     value: ${libreforgeVersion}
 
 options:
-  resource-id: 2873
+  resource-id: 0
   bstats-id: 22538
   color: "&#1e3c72"

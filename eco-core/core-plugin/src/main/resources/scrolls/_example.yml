@@ -49,13 +49,21 @@ targets:
 # The conflicts that the scroll has with other scrolls
 conflicts: [ ]
 
+# The scroll(s) that must be applied to the item before this scroll can be applied
+requirements:
+  - scroll: my_requirement_scroll # The scroll to require
+    level: 2 # The level required (optional)
+
+# If inscribing this scroll should remove the required scrolls
+remove-requirements: false
+
 # The lore added to items when inscribed with the scroll
 lore:
   - ""
   - "&7This item has been inscribed with"
   - "&6Example Scroll"
 
-# Item placeholders, can be used in other plugins.
+# Item placeholders for dynamic lore in plugins like EcoItems
 # The placeholder is %ecoscrolls_scroll_<scroll>_<placeholder>%
 placeholders:
   bonus: "%level% * 2"

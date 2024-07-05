@@ -109,13 +109,11 @@ inscription:
   # Effects to run when an item is inscribed
   # The text placeholder is the name of the scroll, read here:
   # https://plugins.auxilor.io/effects/configuring-an-effect#placeholders
-  # You can also use %scroll% and %scroll_id% as placeholders.
+  # You can also use %scroll%, %scroll_id%, and %level% as placeholders.
   apply-effects: [ ]
 
   # Effects to run when trying to inscribe an item without meeting the conditions
-  # The text placeholder is the name of the scroll, read here:
-  # https://plugins.auxilor.io/effects/configuring-an-effect#placeholders
-  # You can also use %scroll% and %scroll_id% as placeholders.
+  # Same placeholders as apply-effects
   deny-effects: [ ]
 
   # The maximum amount of scrolls that can be applied to an item

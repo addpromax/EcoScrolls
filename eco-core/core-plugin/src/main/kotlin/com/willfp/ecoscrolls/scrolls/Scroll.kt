@@ -4,19 +4,15 @@ import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.display.Display
 import com.willfp.eco.core.fast.FastItemStack
 import com.willfp.eco.core.fast.fast
-import com.willfp.eco.core.integrations.placeholder.PlaceholderManager
 import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.placeholder.InjectablePlaceholder
 import com.willfp.eco.core.placeholder.PlaceholderInjectable
 import com.willfp.eco.core.placeholder.context.PlaceholderContext
 import com.willfp.eco.core.placeholder.context.placeholderContext
 import com.willfp.eco.core.placeholder.templates.DynamicInjectablePlaceholder
-import com.willfp.eco.core.placeholder.templates.DynamicPlaceholder
 import com.willfp.eco.core.price.ConfiguredPrice
 import com.willfp.eco.core.recipe.Recipes
 import com.willfp.eco.core.registry.KRegistrable
-import com.willfp.eco.util.evaluateExpression
-import com.willfp.eco.util.evaluateExpressionOrNull
 import com.willfp.eco.util.formatEco
 import com.willfp.ecoscrolls.EcoScrollsPlugin
 import com.willfp.ecoscrolls.plugin
@@ -30,7 +26,6 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.util.Objects
 import java.util.regex.Pattern
-import kotlin.math.exp
 
 class Scroll(
     plugin: EcoScrollsPlugin,
@@ -82,6 +77,16 @@ class Scroll(
 
     private val conflicts = config.getStrings("conflicts")
 
+    private val requirements = config.getSubsections("requirements")
+        .map {
+            ScrollRequirement(
+                it.getString("scroll"),
+                it.getIntOrNull("level")
+            )
+        }
+
+    val removeRequirements = config.getBool("remove-requirements")
+
     val inscriptionConditions = Conditions.compile(
         config.getSubsections("inscription.conditions"),
         context.with("inscription conditions")
@@ -92,7 +97,7 @@ class Scroll(
         context.with("inscription effects")
     )
 
-    val inscriptionPrice = ConfiguredPrice.create(
+    val inscriptionPrice = ConfiguredPrice.createOrFree(
         config.getSubsection("inscription.price"),
     )
 
@@ -149,6 +154,10 @@ class Scroll(
             return false
         }
 
+        if (requirements.any { !it.isPresent(itemStack) }) {
+            return false
+        }
+
         val level = itemStack.getScrollLevel(this)?.level ?: 0
 
         if (level >= maxLevel) {
@@ -173,20 +182,19 @@ class Scroll(
             return false
         }
 
-        if (inscriptionPrice != null) {
-            if (!inscriptionPrice.canAfford(player)) {
-                return false
-            }
-
-            inscriptionPrice.pay(player)
+        if (!inscriptionPrice.canAfford(player)) {
+            return false
         }
+
+        inscriptionPrice.pay(player)
 
         inscribe(itemStack)
 
         inscriptionEffects.trigger(
             TriggerData(
                 player = player,
-                item = itemStack
+                item = itemStack,
+                value = itemStack.getScrollLevel(this)?.level?.toDouble() ?: 1.0
             ).dispatch(player.toDispatcher())
         )
 
@@ -198,7 +206,16 @@ class Scroll(
         val next = current + 1
 
         val level = this.getLevel(next)
-        itemStack.scrolls = itemStack.scrolls.filter { it.scroll != this }.toSet() + level
+
+        var scrolls = itemStack.scrolls.filter { it.scroll != this }.toSet() + level
+
+        if (removeRequirements) {
+            scrolls = scrolls.filter { scroll ->
+                !requirements.any { it.scrollId == scroll.scroll.id }
+            }.toSet()
+        }
+
+        itemStack.scrolls = scrolls
     }
 
     fun getLore(itemStack: ItemStack, player: Player?): List<String> {
