@@ -299,10 +299,5 @@ private class AllowSlot(plugin: EcoScrollsPlugin) : MenuSlot(plugin, Inscription
     }
 }
 
-private class DenySlot(plugin: EcoScrollsPlugin) : MenuSlot(plugin, InscriptionStatus.DENY) {
-
-}
-
-private class EmptySlot(plugin: EcoScrollsPlugin) : MenuSlot(plugin, InscriptionStatus.EMPTY) {
-
-}
+private class DenySlot(plugin: EcoScrollsPlugin) : MenuSlot(plugin, InscriptionStatus.DENY)
+private class EmptySlot(plugin: EcoScrollsPlugin) : MenuSlot(plugin, InscriptionStatus.EMPTY)
