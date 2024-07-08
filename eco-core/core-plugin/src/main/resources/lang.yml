@@ -10,4 +10,4 @@ messages:
   needs-scroll: "&cYou must specify a scroll!"
   invalid-player: "&cYou must specify a player!"
   invalid-scroll: "&cYou must specify a scroll!"
-  give-success: "Gave %scroll%&r to %recipient%&r!"
+  give-success: "Gave %scroll%&r to %player%&r!"

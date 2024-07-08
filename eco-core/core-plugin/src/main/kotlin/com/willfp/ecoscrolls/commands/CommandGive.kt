@@ -5,6 +5,7 @@ import com.willfp.eco.core.command.impl.Subcommand
 import com.willfp.eco.core.drops.DropQueue
 import com.willfp.eco.core.items.Items.toSNBT
 import com.willfp.eco.core.items.toSNBT
+import com.willfp.eco.util.StringUtils
 import com.willfp.ecoscrolls.scrolls.Scrolls
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
@@ -65,9 +66,9 @@ class CommandGive(
             .forceTelekinesis()
             .push()
 
-        val message = plugin.langYml.getMessage("give-success")
+        val message = plugin.langYml.getMessage("give-success", StringUtils.FormatOption.WITHOUT_PLACEHOLDERS)
             .replace("%scroll%", scroll.name)
-            .replace("%recipient%", reciever.name)
+            .replace("%player%", reciever.name)
 
         sender.sendMessage(message)
     }

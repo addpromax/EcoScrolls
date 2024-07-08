@@ -32,6 +32,7 @@ permissions:
       ecoscrolls.command.reload: true
       ecoscrolls.command.inscribe: true
       ecoscrolls.command.give: true
+      ecoscrolls.command.inscribedirect: true
 
   ecoscrolls.command.reload:
     description: Allows reloading the config
@@ -44,3 +45,7 @@ permissions:
   ecoscrolls.command.inscribe:
     description: Allows opening the inscription table with /inscribe
     default: true
+
+  ecoscrolls.command.inscribedirect:
+    description: Allows directly inscribing an item with /ecoscrolls inscribe
+    default: op
