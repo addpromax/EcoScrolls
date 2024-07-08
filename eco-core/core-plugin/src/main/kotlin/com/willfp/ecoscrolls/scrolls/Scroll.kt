@@ -13,7 +13,6 @@ import com.willfp.eco.core.placeholder.templates.DynamicInjectablePlaceholder
 import com.willfp.eco.core.price.ConfiguredPrice
 import com.willfp.eco.core.recipe.Recipes
 import com.willfp.eco.core.registry.KRegistrable
-import com.willfp.eco.util.evaluateExpression
 import com.willfp.eco.util.evaluateExpressionOrNull
 import com.willfp.eco.util.formatEco
 import com.willfp.eco.util.toNumeral
@@ -29,7 +28,6 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.util.Objects
 import java.util.regex.Pattern
-import kotlin.math.max
 
 class Scroll(
     plugin: EcoScrollsPlugin,
@@ -65,6 +63,7 @@ class Scroll(
         fis.scroll = this
         fis.displayName = itemName.formatEco()
         fis.lore = itemLore.formatEco().map { Display.PREFIX + it } + fis.lore
+        fis.scrollUsesLeft = maxUses
         fis.unwrap()
     }
 
@@ -131,15 +130,15 @@ class Scroll(
         private val usesLeftPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("uses_left")) {
             override fun getValue(p0: String, p1: PlaceholderContext): String? {
                 val item = p1.itemStack ?: return null
-                val scroll = item.scroll ?: return null
-                return (scroll.maxUses - item.scrollUses).toString()
+                return item.scrollUsesLeft.toString()
             }
         }
 
         private val usesPlaceholder = object : DynamicInjectablePlaceholder(Pattern.compile("uses")) {
             override fun getValue(p0: String, p1: PlaceholderContext): String? {
                 val item = p1.itemStack ?: return null
-                return item.scrollUses.toString()
+                val scroll = item.scroll ?: return null
+                return (scroll.maxUses - item.scrollUsesLeft).toString()
             }
         }
 

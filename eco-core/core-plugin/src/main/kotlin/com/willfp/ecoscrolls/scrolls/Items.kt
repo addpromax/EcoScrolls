@@ -9,7 +9,7 @@ import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
 
 private val SCROLL_KEY = plugin.createNamespacedKey("scroll")
-private val SCROLL_USES_KEY = plugin.createNamespacedKey("scroll_uses")
+private val SCROLL_USES_LEFT_KEY = plugin.createNamespacedKey("scroll_uses_left")
 private val SCROLLS_KEY = plugin.createNamespacedKey("scrolls")
 private val SCROLL_ID_KEY = plugin.createNamespacedKey("scroll")
 private val SCROLL_LEVEL_KEY = plugin.createNamespacedKey("level")
@@ -40,37 +40,39 @@ var PersistentDataContainer.scroll: Scroll?
         this.set(SCROLL_KEY, PersistentDataType.STRING, value.id)
     }
 
-var ItemStack.scrollUses: Int
-    get() = this.fast().scrollUses
+var ItemStack.scrollUsesLeft: Int
+    get() = this.fast().scrollUsesLeft
     set(value) {
-        this.fast().scrollUses = value
+        this.fast().scrollUsesLeft = value
     }
 
-var FastItemStack.scrollUses: Int
-    get() = this.persistentDataContainer.scrollUses
+var FastItemStack.scrollUsesLeft: Int
+    get() = this.persistentDataContainer.scrollUsesLeft
     set(value) {
-        this.persistentDataContainer.scrollUses = value
+        this.persistentDataContainer.scrollUsesLeft = value
     }
 
-var PersistentDataContainer.scrollUses: Int
+var PersistentDataContainer.scrollUsesLeft: Int
     get() {
-        return this.get(SCROLL_USES_KEY, PersistentDataType.INTEGER) ?: 0
+        return this.get(SCROLL_USES_LEFT_KEY, PersistentDataType.INTEGER) ?: 0
     }
     set(value) {
         if (value == 0) {
-            this.remove(SCROLL_USES_KEY)
+            this.remove(SCROLL_USES_LEFT_KEY)
             return
         }
 
-        this.set(SCROLL_USES_KEY, PersistentDataType.INTEGER, value)
+        this.set(SCROLL_USES_LEFT_KEY, PersistentDataType.INTEGER, value)
     }
 
 fun ItemStack.useScroll() {
-    val scroll = this.scroll ?: return
+    if (this.scroll == null) {
+        return
+    }
 
-    this.scrollUses++
+    this.scrollUsesLeft--
 
-    if (this.scrollUses >= scroll.maxUses) {
+    if (this.scrollUsesLeft <= 0) {
         this.amount--
     }
 }
