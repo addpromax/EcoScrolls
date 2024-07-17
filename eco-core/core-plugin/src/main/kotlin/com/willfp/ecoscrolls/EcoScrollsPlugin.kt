@@ -63,7 +63,7 @@ class EcoScrollsPlugin : LibreforgePlugin() {
         }
 
         PlaceholderManager.registerPlaceholder(
-            object : DynamicPlaceholder(plugin, Pattern.compile("scroll_([a-z0-9_]+)_([a-zA-Z0-9_]+)")) {
+            object : DynamicPlaceholder(plugin, Pattern.compile("scroll_([a-z0-9_]+):([a-zA-Z0-9_]+)")) {
                 override fun getValue(args: String, context: PlaceholderContext): String? {
                     val matcher = pattern.matcher(args)
 

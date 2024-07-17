@@ -77,8 +77,8 @@ lore:
   - "&6Example Scroll"
 
 # Item placeholders for dynamic lore in plugins like EcoItems
-# The placeholder is %ecoscrolls_scroll_<scroll>_<placeholder>%, e.g.
-# %ecoscrolls_scroll_example_bonus%
+# The placeholder is %ecoscrolls_scroll_<scroll>:<placeholder>%, e.g.
+# %ecoscrolls_scroll_example:bonus%
 placeholders:
   bonus: "%level% * 2"
 
