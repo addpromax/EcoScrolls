@@ -5,23 +5,29 @@
 # _example.yml is not loaded.
 
 # The name of the scroll
-name: "&6Example Scroll"
+name: "&cHot Potato Book"
 
 # The max level of the scroll
-max-level: 1
+max-level: 10
 
 # The amount of times the scroll can be used
 max-uses: 1
 
 # Options for the physical scroll item
 item:
-  item: paper glint
+  item: book unbreaking:1 hide_enchants
 
   # Name and lore can use %uses%, %max_uses%, and %uses_left% placeholders
-  name: "&6&lExample Scroll"
+  name: "&cHot Potato Book"
   lore:
-      - "&7This is an example scroll."
-      - "&7It does nothing."
+    - "&7When inscribed on armor, grants"
+    - "&f+2 %ecoskills_defense_name% &7and &f+1 %ecoskills_health_name%&7."
+    - ""
+    - "&7When inscribed to weapons, grants"
+    - "&f+2 %ecoskills_strength_name% &7and &f+4 %ecoskills_crit_damage_name%&7."
+    - ""
+    - "&7This can be inscribed up to &a10 &7times"
+    - "&7on an item!"
 
   # Options for crafting, read here: https://plugins.auxilor.io/all-plugins/the-item-lookup-system#crafting-recipes
   craftable: false
@@ -58,38 +64,70 @@ inscription:
 # The items that the scroll can be applied to, see targets.yml
 targets:
   - sword
+  - axe
+  - armor
 
 # The conflicts that the scroll has with other scrolls
 conflicts: [ ]
 
 # The scroll(s) that must be applied to the item before this scroll can be applied
-requirements:
-  - scroll: my_requirement_scroll # The scroll to require
-    level: 2 # The level required (optional)
+requirements: [ ]
 
 # If inscribing this scroll should remove the required scrolls
 remove-requirements: false
 
 # The lore added to items when inscribed with the scroll
-lore:
-  - ""
-  - "&7This item has been inscribed with"
-  - "&6Example Scroll"
+lore: [ ]
 
 # Item placeholders for dynamic lore in plugins like EcoItems
 # The placeholder is %ecoscrolls_scroll_<scroll>_<placeholder>%, e.g.
 # %ecoscrolls_scroll_example_bonus%
 placeholders:
-  bonus: "%level% * 2"
+  # For EcoItems items, use %ecoscrolls_scroll_hot_potato_book_defense% in lore
+  defense: " &8(&e{^{%level% * 2}}&8)"
+  # Same as above, but for health / strength / crit_damage
+  health: " &8(&e{^{%level%}}&8)"
+  strength: " &8(&e{^{%level% * 2}}&8)"
+  crit_damage: " &8(&e{^{%level% * 4}}&8)"
 
 # Read https://plugins.auxilor.io/effects/configuring-an-effect
 # The effects for the scroll to give
 effects:
-  - id: send_message
+  # Armor effects
+  - id: add_stat
     args:
-      message: "&6You have used the Example Scroll!"
-    triggers:
-      - alt_click
+      stat: defense
+      amount: "%level% * 2"
+    conditions:
+      - id: in_slot
+        args:
+          slot: armor
+  - id: add_stat
+    args:
+      stat: health
+      amount: "%level%"
+    conditions:
+      - id: in_slot
+        args:
+          slot: armor
+
+  # Weapon effects
+  - id: add_stat
+    args:
+      stat: strength
+      amount: "%level% * 2"
+    conditions:
+      - id: in_slot
+        args:
+          slot: mainhand
+  - id: add_stat
+    args:
+      stat: crit_damage
+      amount: "%level% * 4"
+    conditions:
+      - id: in_slot
+        args:
+          slot: mainhand
 
 # Read https://plugins.auxilor.io/effects/configuring-a-condition
 # The conditions for the scroll to work
