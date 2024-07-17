@@ -186,7 +186,7 @@ class Scroll(
 
         val currentScrolls = itemStack.scrolls
 
-        if (currentScrolls.size >= plugin.inscriptionHandler.scrollLimit) {
+        if (currentScrolls.size >= plugin.inscriptionHandler.getScrollLimit(itemStack)) {
             return false
         }
 

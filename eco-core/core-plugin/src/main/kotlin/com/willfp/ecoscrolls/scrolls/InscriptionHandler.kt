@@ -3,22 +3,24 @@ package com.willfp.ecoscrolls.scrolls
 import com.willfp.ecoscrolls.EcoScrollsPlugin
 import com.willfp.ecoscrolls.scrolls.event.ScrollInscribeEvent
 import com.willfp.ecoscrolls.scrolls.event.ScrollTryInscribeEvent
+import com.willfp.ecoscrolls.target.Targets.targets
 import com.willfp.libreforge.NamedValue
 import com.willfp.libreforge.ViolationContext
 import com.willfp.libreforge.effects.Chain
-import com.willfp.libreforge.effects.EffectList
 import com.willfp.libreforge.effects.Effects
 import com.willfp.libreforge.toDispatcher
 import com.willfp.libreforge.triggers.TriggerData
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.util.Optional
+import kotlin.math.max
+import kotlin.math.min
 
 class InscriptionHandler(private val plugin: EcoScrollsPlugin) {
     private lateinit var applyEffects: Optional<Chain>
     private lateinit var denyEffects: Optional<Chain>
 
-    val scrollLimit = plugin.configYml.getInt("inscription.scroll-limit")
+    private val globalScrollLimit = plugin.configYml.getInt("inscription.scroll-limit")
         .let { if (it <= 0) Int.MAX_VALUE else it }
 
     internal fun reload() {
@@ -87,5 +89,20 @@ class InscriptionHandler(private val plugin: EcoScrollsPlugin) {
         }
 
         return didInscribe
+    }
+
+    fun getScrollLimit(item: ItemStack): Int {
+        val targets = item.targets
+
+        var highest = Int.MAX_VALUE
+
+        for (target in targets) {
+            val limit = target.scrollLimit ?: continue
+            if (limit < highest) {
+                highest = limit
+            }
+        }
+
+        return min(highest, globalScrollLimit)
     }
 }

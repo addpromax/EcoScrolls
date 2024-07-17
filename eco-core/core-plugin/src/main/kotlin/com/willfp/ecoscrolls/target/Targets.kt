@@ -5,9 +5,6 @@ import com.willfp.eco.core.items.HashedItem
 import com.willfp.eco.core.registry.Registry
 import com.willfp.ecoscrolls.EcoScrollsPlugin
 import com.willfp.ecoscrolls.plugin
-import com.willfp.ecoscrolls.scrolls.Scroll
-import com.willfp.ecoscrolls.scrolls.Scrolls
-import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import java.util.concurrent.TimeUnit
 
@@ -23,14 +20,9 @@ object Targets : Registry<Target>() {
             .filter { it.matches(item) }
     }
 
-    val ItemStack.isModifiable: Boolean
-        get() = modifiableCache.get(HashedItem.of(this)) {
-            getForItem(this).isNotEmpty() || this.type == Material.BOOK || this.type == Material.ENCHANTED_BOOK
-        }
-
-    val ItemStack.applicableScrolls: List<Scroll>
-        get() = canModifyCache.get(HashedItem.of(this)) {
-            Scrolls.values().filter { it.canInscribe(this) }
+    val ItemStack.targets: List<Target>
+        get() = targetsCache.get(HashedItem.of(this)) {
+            getForItem(this)
         }
 
     internal fun update(plugin: EcoScrollsPlugin) {
@@ -49,10 +41,6 @@ object Targets : Registry<Target>() {
     }
 }
 
-private val modifiableCache = Caffeine.newBuilder()
+private val targetsCache = Caffeine.newBuilder()
     .expireAfterAccess(5, TimeUnit.SECONDS)
-    .build<HashedItem, Boolean>()
-
-private val canModifyCache = Caffeine.newBuilder()
-    .expireAfterAccess(5, TimeUnit.SECONDS)
-    .build<HashedItem, List<Scroll>>()
+    .build<HashedItem, List<Target>>()

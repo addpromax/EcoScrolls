@@ -8,10 +8,15 @@
 # a target with slot "mainhand", the scroll will activate whenever the item is
 # in your mainhand.
 
+# You can also specify a scroll limit for a target, for example you can limit
+# pickaxes to only have 3 scrolls inscribed on them.
+# If an item has multiple targets, the lowest limit will be used.
+
 targets:
   - id: pickaxe
     display-name: "Pickaxes"
     slot: mainhand
+    # scroll-limit: 10 # Example of a scroll limit
     items:
       - "*wooden_pickaxe"
       - "*stone_pickaxe"

@@ -17,6 +17,7 @@ interface Target : Registrable {
     val displayName: String
     val slot: SlotType
     val items: List<TestableItem>
+    val scrollLimit: Int?
 
     fun matches(itemStack: ItemStack): Boolean {
         for (item in items) {
@@ -45,6 +46,8 @@ class ConfiguredTarget(
         .map { Items.lookup(it) }
         .filterNot { it is EmptyTestableItem }
 
+    override val scrollLimit = config.getIntOrNull("scroll-limit")
+
     override fun equals(other: Any?): Boolean {
         if (other !is Target) {
             return false
@@ -64,6 +67,7 @@ internal object AllTarget : Target {
     override val slot = SlotTypeAny
     override var items = emptyList<TestableItem>()
         private set
+    override val scrollLimit = null
 
     fun updateItems() {
         items = Targets.values()
