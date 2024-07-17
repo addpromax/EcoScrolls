@@ -97,7 +97,7 @@ class Scroll(
         context.with("inscription conditions")
     )
 
-    private val inscriptionEffects = Effects.compile(
+    private val inscriptionEffects = Effects.compileChain(
         config.getSubsections("inscription.effects"),
         context.with("inscription effects")
     )
@@ -230,7 +230,7 @@ class Scroll(
 
         inscribe(itemStack)
 
-        inscriptionEffects.trigger(
+        inscriptionEffects?.trigger(
             TriggerData(
                 player = player,
                 item = itemStack,

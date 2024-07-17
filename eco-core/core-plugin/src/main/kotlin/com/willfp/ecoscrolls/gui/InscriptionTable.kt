@@ -58,12 +58,12 @@ internal fun updateInscribeMenu(plugin: EcoScrollsPlugin) {
 
     val violationContext = ViolationContext(plugin, "Inscription Table")
 
-    val openEffects = Effects.compile(
+    val openEffects = Effects.compileChain(
         plugin.configYml.getSubsections("gui.open-effects"),
         violationContext.with("Open Effects")
     )
 
-    val closeEffects = Effects.compile(
+    val closeEffects = Effects.compileChain(
         plugin.configYml.getSubsections("gui.close-effects"),
         violationContext.with("Close Effects")
     )
@@ -139,13 +139,13 @@ internal fun updateInscribeMenu(plugin: EcoScrollsPlugin) {
         }
 
         onOpen { player, _ ->
-            openEffects.trigger(TriggerData(player = player).dispatch(player.toDispatcher()))
+            openEffects?.trigger(TriggerData(player = player).dispatch(player.toDispatcher()))
         }
 
         onClose { event, menu ->
             val player = event.player as Player
 
-            closeEffects.trigger(TriggerData(player = player).dispatch(player.toDispatcher()))
+            closeEffects?.trigger(TriggerData(player = player).dispatch(player.toDispatcher()))
 
             DropQueue(player)
                 .addItems(menu.getCaptiveItems(player))
