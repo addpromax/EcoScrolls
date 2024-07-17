@@ -15,16 +15,14 @@ import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
 
 object EffectInscribeItem : Effect<NoCompileData>("inscribe_item") {
-    override val parameters = setOf(
-        TriggerParameter.ITEM
-    )
+    override val isPermanent = false
 
     override val arguments = arguments {
         require("scroll", "You must specify the scroll!")
     }
 
     override fun onTrigger(config: Config, data: TriggerData, compileData: NoCompileData): Boolean {
-        val item = data.item ?: return false
+        val item = data.foundItem ?: return false
 
         val scroll = Scrolls[config.getString("scroll")] ?: return false
 
