@@ -4,6 +4,7 @@ import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.display.Display
 import com.willfp.eco.core.fast.FastItemStack
 import com.willfp.eco.core.fast.fast
+import com.willfp.eco.core.items.CustomItem
 import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.placeholder.InjectablePlaceholder
 import com.willfp.eco.core.placeholder.PlaceholderInjectable
@@ -69,6 +70,12 @@ class Scroll(
 
     val item: ItemStack
         get() = _item.clone()
+
+    val customItem = CustomItem(
+        plugin.createNamespacedKey("scroll_$id"),
+        { it.scroll == this },
+        _item
+    ).apply { register() }
 
     val recipe = if (config.getBool("item.craftable")) Recipes.createAndRegisterRecipe(
         plugin,
