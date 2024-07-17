@@ -139,13 +139,13 @@ internal fun updateInscribeMenu(plugin: EcoScrollsPlugin) {
         }
 
         onOpen { player, _ ->
-            openEffects?.trigger(TriggerData(player = player).dispatch(player.toDispatcher()))
+            openEffects?.trigger(player.toDispatcher(), TriggerData(player = player))
         }
 
         onClose { event, menu ->
             val player = event.player as Player
 
-            closeEffects?.trigger(TriggerData(player = player).dispatch(player.toDispatcher()))
+            closeEffects?.trigger(player.toDispatcher(), TriggerData(player = player))
 
             DropQueue(player)
                 .addItems(menu.getCaptiveItems(player))

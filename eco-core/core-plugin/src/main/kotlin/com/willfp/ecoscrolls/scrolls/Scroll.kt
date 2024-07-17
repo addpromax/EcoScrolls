@@ -231,11 +231,12 @@ class Scroll(
         inscribe(itemStack)
 
         inscriptionEffects?.trigger(
+            player.toDispatcher(),
             TriggerData(
                 player = player,
                 item = itemStack,
                 value = itemStack.getScrollLevel(this)?.level?.toDouble() ?: 1.0
-            ).dispatch(player.toDispatcher())
+            )
         )
 
         return true
