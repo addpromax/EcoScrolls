@@ -39,7 +39,7 @@ allprojects {
     dependencies {
         implementation("com.willfp:ecomponent:1.4.1")
 
-        compileOnly("com.willfp:eco:6.71.0")
+        compileOnly("com.willfp:eco:6.73.0")
         compileOnly("org.jetbrains:annotations:23.0.0")
         compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.9.20")
         compileOnly("com.github.ben-manes.caffeine:caffeine:3.1.5")

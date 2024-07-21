@@ -13,7 +13,6 @@ import com.willfp.libreforge.triggers.TriggerData
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.util.Optional
-import kotlin.math.max
 import kotlin.math.min
 
 class InscriptionHandler(private val plugin: EcoScrollsPlugin) {

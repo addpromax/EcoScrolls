@@ -3,6 +3,7 @@ package com.willfp.ecoscrolls
 import com.willfp.eco.core.command.impl.PluginCommand
 import com.willfp.eco.core.display.DisplayModule
 import com.willfp.eco.core.integrations.placeholder.PlaceholderManager
+import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.placeholder.context.PlaceholderContext
 import com.willfp.eco.core.placeholder.templates.DynamicPlaceholder
 import com.willfp.ecoscrolls.commands.CommandEcoScrolls
@@ -17,6 +18,7 @@ import com.willfp.ecoscrolls.libreforge.TriggerInscribe
 import com.willfp.ecoscrolls.libreforge.TriggerTryInscribe
 import com.willfp.ecoscrolls.scrolls.InscriptionHandler
 import com.willfp.ecoscrolls.scrolls.ScrollLevel
+import com.willfp.ecoscrolls.scrolls.ScrollTag
 import com.willfp.ecoscrolls.scrolls.Scrolls
 import com.willfp.ecoscrolls.target.ScrollFinder
 import com.willfp.ecoscrolls.target.Targets
@@ -53,6 +55,8 @@ class EcoScrollsPlugin : LibreforgePlugin() {
         Filters.register(FilterScroll)
         Triggers.register(TriggerInscribe)
         Triggers.register(TriggerTryInscribe)
+
+        Items.registerTag(ScrollTag(this))
 
         registerHolderProvider(ScrollFinder.toHolderProvider())
 
